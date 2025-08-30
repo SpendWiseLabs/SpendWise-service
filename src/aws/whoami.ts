@@ -1,5 +1,6 @@
 import { STSClient, GetCallerIdentityCommand } from '@aws-sdk/client-sts';
 import { getAssumedCredentials } from './auth.js';
+import { logger, LogLevel } from '../utils/logger.js';
 import config from 'config';
 
 /**
@@ -21,14 +22,15 @@ export async function whoAmI(): Promise<{ account: string; arn: string }> {
       throw new Error('Invalid response from STS GetCallerIdentity');
     }
 
-    console.log(`[INFO] Successfully authenticated as: ${response.Arn}`);
+    // Logging seguro del ARN
+    logger.logArn(LogLevel.INFO, 'Successfully authenticated as:', response.Arn);
 
     return {
       account: response.Account,
       arn: response.Arn,
     };
   } catch (error) {
-    console.error('[ERROR] Failed to get caller identity:', error);
+    logger.error('Failed to get caller identity:', error);
     throw new Error(`Authentication failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }
 }

@@ -26,7 +26,7 @@ export class GetDashboardUseCase {
 
       const totalSavings = savings.totalSavings;
       const totalIssues = issues.length;
-      const totalCosts = costs.totalCost;
+      const totalCosts = costs.totalCost ?? 0;
 
       return {
         inventory,

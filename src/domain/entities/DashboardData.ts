@@ -17,6 +17,6 @@ export interface DashboardData {
     totalResources: number;
     totalIssues: number;
     totalSavings: number;
-    totalCosts?: number;
+    totalCosts: number;
   };
 }
