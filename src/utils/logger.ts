@@ -56,7 +56,7 @@ class Logger {
     }
   }
 
-  // Método específico para logging seguro de ARNs
+  // Specific method for secure ARN logging
   logArn(level: LogLevel, message: string, arn: string): void {
     const sanitizedArn = this.sanitizeArn(arn);
     this[level](message, sanitizedArn);
