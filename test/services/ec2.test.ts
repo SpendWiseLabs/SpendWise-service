@@ -27,7 +27,7 @@ suite('EC2 Service', () => {
     // Mock EC2Client directly
     ec2ClientStub = sinon.stub(EC2Client.prototype, 'send');
 
-    // Limpiar caché antes de cada test
+    // Clear cache before each test
     clearCache();
   });
 
