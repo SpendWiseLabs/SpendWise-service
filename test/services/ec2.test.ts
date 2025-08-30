@@ -41,7 +41,7 @@ suite('EC2 Service', () => {
         { Id: 'i-1234567890abcdef0', Type: 't2.micro', State: 'running', AZ: 'us-east-1a' },
       ];
 
-      // Primera llamada - guarda en caché
+      // First call - saves to cache
       ec2ClientStub.resolves({
         Reservations: [
           {
