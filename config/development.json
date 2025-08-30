@@ -1,4 +1,9 @@
 {
-    "environment": "development",
-    "port": 3000
+  "environment": "development",
+  "port": 3000,
+  "aws": {
+    "region": "us-east-1",
+    "roleArn": "arn:aws:iam::128977215059:role/HackathonReadOnlyRole",
+    "externalId": "hackathon-2025-external-id"
+  }
 }
