@@ -1,0 +1,7 @@
+{
+    "require": "tsx",
+    "extensions": ["ts"],
+    "spec": [
+      "test/*.ts"
+    ]
+  }
