@@ -103,16 +103,23 @@ export async function priceEbsGp3USDPerGBMonth(): Promise<number> {
     }
 
     // Get the first OnDemand term
-    const firstTermKey = Object.keys(terms)[0];
+    const termKeys = Object.keys(terms);
+    if (termKeys.length === 0) {
+      throw new Error('No OnDemand term keys found in pricing data');
+    }
+    const firstTermKey = termKeys[0];
     const firstTerm = terms[firstTermKey];
 
     const priceDimensions = firstTerm.priceDimensions;
     if (!priceDimensions) {
       throw new Error('No price dimensions found in pricing data');
     }
-
+    const dimensionKeys = Object.keys(priceDimensions);
+    if (dimensionKeys.length === 0) {
+      throw new Error('No price dimension keys found in pricing data');
+    }
     // Get the first price dimension
-    const firstDimensionKey = Object.keys(priceDimensions)[0];
+    const firstDimensionKey = dimensionKeys[0];
     const firstDimension = priceDimensions[firstDimensionKey];
 
     const pricePerUnit = firstDimension.pricePerUnit?.USD;
