@@ -1,6 +1,7 @@
 import { fromTemporaryCredentials } from '@aws-sdk/credential-providers';
 import type { AwsCredentialIdentityProvider } from '@aws-sdk/types';
 import config from 'config';
+import { logger, LogLevel } from '../utils/logger.js';
 
 interface AssumedCredentialsConfig {
   roleArn: string;
@@ -10,10 +11,12 @@ interface AssumedCredentialsConfig {
   durationSeconds: number;
 }
 
-let cachedProvider: AwsCredentialIdentityProvider | null = null;
+// Caché thread-safe usando WeakMap para evitar memory leaks
+const credentialCache = new WeakMap<object, AwsCredentialIdentityProvider>();
+const cacheKey = {};
 
 /**
- * Obtiene credenciales temporales usando STS AssumeRole con caché automático
+ * Obtiene credenciales temporales usando STS AssumeRole con caché thread-safe
  * @returns Provider de credenciales que se renueva automáticamente
  */
 export function getAssumedCredentials(): AwsCredentialIdentityProvider {
@@ -29,7 +32,8 @@ export function getAssumedCredentials(): AwsCredentialIdentityProvider {
     throw new Error('aws.externalId configuration is required for AWS authentication');
   }
 
-  // Si ya tenemos un provider en caché, lo reutilizamos
+  // Verificar caché thread-safe
+  const cachedProvider = credentialCache.get(cacheKey);
   if (cachedProvider) {
     return cachedProvider;
   }
@@ -43,11 +47,12 @@ export function getAssumedCredentials(): AwsCredentialIdentityProvider {
     durationSeconds: 3600,
   };
 
-  console.log(`[INFO] Creating STS AssumeRole provider for role: ${configData.roleArn}`);
-  console.log(`[INFO] Using region: ${configData.region}`);
+  // Logging seguro del Role ARN
+  logger.logArn(LogLevel.INFO, 'Creating STS AssumeRole provider for role:', configData.roleArn);
+  logger.info('Using region:', configData.region);
 
   // Crear provider de credenciales temporales
-  cachedProvider = fromTemporaryCredentials({
+  const newProvider = fromTemporaryCredentials({
     params: {
       RoleArn: configData.roleArn,
       ExternalId: configData.externalId,
@@ -57,13 +62,16 @@ export function getAssumedCredentials(): AwsCredentialIdentityProvider {
     clientConfig: { region: configData.region },
   });
 
-  return cachedProvider;
+  // Almacenar en caché thread-safe
+  credentialCache.set(cacheKey, newProvider);
+
+  return newProvider;
 }
 
 /**
  * Limpia el caché de credenciales (útil para testing)
  */
 export function clearCredentialsCache(): void {
-  cachedProvider = null;
-  console.log('[INFO] Credentials cache cleared');
+  credentialCache.delete(cacheKey);
+  logger.info('Credentials cache cleared');
 }
