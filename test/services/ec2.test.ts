@@ -24,7 +24,7 @@ suite('EC2 Service', () => {
     configStub.withArgs('aws.roleArn').returns('arn:aws:iam::123456789012:role/test-role');
     configStub.withArgs('aws.externalId').returns('test-external-id');
 
-    // Mock de EC2Client directamente
+    // Mock EC2Client directly
     ec2ClientStub = sinon.stub(EC2Client.prototype, 'send');
 
     // Limpiar caché antes de cada test
