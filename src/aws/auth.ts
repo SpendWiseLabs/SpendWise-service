@@ -32,7 +32,7 @@ export function getAssumedCredentials(): AwsCredentialIdentityProvider {
     throw new Error('aws.externalId configuration is required for AWS authentication');
   }
 
-  // Verificar caché thread-safe
+  // Check thread-safe cache
   const cachedProvider = credentialCache.get(cacheKey);
   if (cachedProvider) {
     return cachedProvider;
