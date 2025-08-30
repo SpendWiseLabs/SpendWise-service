@@ -287,7 +287,7 @@ suite('EC2 Service', () => {
       await listInstances();
       expect(ec2ClientStub.calledOnce).to.be.true;
 
-      // Limpiar caché
+      // Clear cache
       clearCache();
 
       // Llamar de nuevo - debería hacer nueva llamada API
