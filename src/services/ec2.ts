@@ -39,7 +39,7 @@ interface CacheEntry<T> {
 
 class Cache {
   private cache = new Map<string, CacheEntry<unknown>>();
-  private readonly defaultTtl = 60000; // 60 segundos
+  private readonly defaultTtl = 60000; // 60 seconds
 
   get<T>(key: string): T | null {
     const entry = this.cache.get(key) as CacheEntry<T> | undefined;
