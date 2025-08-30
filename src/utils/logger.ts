@@ -28,7 +28,7 @@ class Logger {
       return `${arnParts.slice(0, 4).join(':')}:****:${arnParts.slice(5).join(':')}`;
     }
 
-    // Para otros ARNs, mostrar solo la estructura
+    // For other ARNs, show only the structure
     return arn.replace(/\d{12}/g, '****');
   }
 
