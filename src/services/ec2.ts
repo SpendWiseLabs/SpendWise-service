@@ -30,7 +30,7 @@ export type Eip = {
   AssociationId?: string | null;
 };
 
-// Cache in-memory con TTL
+// In-memory cache with TTL
 interface CacheEntry<T> {
   data: T;
   timestamp: number;
