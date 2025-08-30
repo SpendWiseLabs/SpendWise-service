@@ -60,7 +60,7 @@ suite('EC2 Service', () => {
       const result1 = await listInstances();
       expect(result1).to.deep.equal(mockInstances);
 
-      // Segunda llamada - usa caché
+      // Second call - uses cache
       const result2 = await listInstances();
       expect(result2).to.deep.equal(mockInstances);
       expect(ec2ClientStub.calledOnce).to.be.true;
