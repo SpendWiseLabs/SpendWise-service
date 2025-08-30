@@ -47,7 +47,7 @@ export function getAssumedCredentials(): AwsCredentialIdentityProvider {
     durationSeconds: 3600,
   };
 
-  // Logging seguro del Role ARN
+  // Secure logging of Role ARN
   logger.logArn(LogLevel.INFO, 'Creating STS AssumeRole provider for role:', configData.roleArn);
   logger.info('Using region:', configData.region);
 
