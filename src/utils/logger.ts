@@ -18,7 +18,7 @@ class Logger {
   }
 
   private sanitizeArn(arn: string): string {
-    // Sanitiza ARNs para logging seguro
+    // Sanitizes ARNs for secure logging
     if (!arn) return '[REDACTED]';
 
     // Para ARNs de rol: arn:aws:iam::123456789012:role/role-name
