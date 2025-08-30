@@ -72,7 +72,7 @@ suite('EC2 Service', () => {
         { Id: 'i-0987654321fedcba0', Type: 't3.small', State: 'stopped', AZ: 'us-east-1b' },
       ];
 
-      // Primera página
+      // First page
       ec2ClientStub.onFirstCall().resolves({
         Reservations: [
           {
