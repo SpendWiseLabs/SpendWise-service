@@ -89,7 +89,12 @@ export async function priceEbsGp3USDPerGBMonth(): Promise<number> {
     }
 
     // Parse the first pricing result
-    const priceData = JSON.parse(response.PriceList[0]);
+    let priceData;
+    try {
+      priceData = JSON.parse(response.PriceList[0]);
+    } catch (parseError) {
+      throw new Error('Failed to parse pricing data JSON: ' + parseError.message);
+    }
 
     // Navigate through the pricing structure to get the OnDemand price
     const terms = priceData.terms?.OnDemand;
