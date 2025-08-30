@@ -62,7 +62,7 @@ export function getAssumedCredentials(): AwsCredentialIdentityProvider {
     clientConfig: { region: configData.region },
   });
 
-  // Almacenar en caché thread-safe
+  // Store in thread-safe cache
   credentialCache.set(cacheKey, newProvider);
 
   return newProvider;
