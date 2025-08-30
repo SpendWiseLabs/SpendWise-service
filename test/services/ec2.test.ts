@@ -290,7 +290,7 @@ suite('EC2 Service', () => {
       // Clear cache
       clearCache();
 
-      // Llamar de nuevo - debería hacer nueva llamada API
+      // Call again - should make new API call
       await listInstances();
       expect(ec2ClientStub.calledTwice).to.be.true;
     });
