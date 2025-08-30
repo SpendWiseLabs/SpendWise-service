@@ -12,6 +12,10 @@
     "dev": "cross-env NODE_ENV=development nodemon src/index.ts",
     "test": "ts-mocha",
     "test:aws": "ts-mocha test/aws/**/*.test.ts",
+    "test:services": "ts-mocha test/services/**/*.test.ts",
+    "test:ec2": "node --loader ts-node/esm test-ec2.ts",
+    "test:ec2:detailed": "cross-env NODE_ENV=development tsx test-ec2-detailed.ts",
+    "test:ec2:cache": "cross-env NODE_ENV=development tsx test-ec2-cache.ts",
     "prettier": "npx prettier --write src test"
   },
   "repository": {
