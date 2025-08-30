@@ -10,7 +10,6 @@ const DEFAULT_EIP_PRICE_USD_PER_MONTH = 3.6;
 interface CacheEntry<T> {
   data: T;
   timestamp: number;
-  ttl: number;
 }
 
 class PricingCache {
@@ -21,7 +20,7 @@ class PricingCache {
     const entry = this.cache.get(key);
     if (!entry) return null;
 
-    if (Date.now() - entry.timestamp > entry.ttl) {
+    if (Date.now() - entry.timestamp > this.ttl) {
       this.cache.delete(key);
       return null;
     }
@@ -34,7 +33,6 @@ class PricingCache {
     this.cache.set(key, {
       data: value,
       timestamp: Date.now(),
-      ttl: this.ttl,
     });
   }
 
