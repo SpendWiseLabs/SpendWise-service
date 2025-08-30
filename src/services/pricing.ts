@@ -2,6 +2,10 @@ import { PricingClient, GetProductsCommand } from '@aws-sdk/client-pricing';
 import { getAssumedCredentials } from '../aws/auth.js';
 import { logger } from '../utils/logger.js';
 
+// Pricing constants for fallback values
+const DEFAULT_EBS_GP3_PRICE_USD_PER_GB_MONTH = 0.08;
+const DEFAULT_EIP_PRICE_USD_PER_MONTH = 3.6;
+
 // In-memory cache with 24-hour TTL
 interface CacheEntry<T> {
   data: T;
@@ -123,12 +127,14 @@ export async function priceEbsGp3USDPerGBMonth(): Promise<number> {
     // Fallback to environment variable or default value
     const fallbackPrice = process.env.PRICE_EBS_GP3_USD_PER_GB
       ? parseFloat(process.env.PRICE_EBS_GP3_USD_PER_GB)
-      : 0.08;
+      : DEFAULT_EBS_GP3_PRICE_USD_PER_GB_MONTH;
 
     if (isNaN(fallbackPrice)) {
-      logger.warn('Invalid PRICE_EBS_GP3_USD_PER_GB environment variable, using default 0.08');
-      pricingCache.set(cacheKey, 0.08);
-      return 0.08;
+      logger.warn(
+        `Invalid PRICE_EBS_GP3_USD_PER_GB environment variable, using default ${DEFAULT_EBS_GP3_PRICE_USD_PER_GB_MONTH}`,
+      );
+      pricingCache.set(cacheKey, DEFAULT_EBS_GP3_PRICE_USD_PER_GB_MONTH);
+      return DEFAULT_EBS_GP3_PRICE_USD_PER_GB_MONTH;
     }
 
     logger.info(
@@ -153,12 +159,16 @@ export async function priceEipUSDPerMonth(): Promise<number> {
   }
 
   // For now uses fallback (in the future AWS Pricing API can be implemented)
-  const fallbackPrice = process.env.PRICE_EIP_USD_PER_MONTH ? parseFloat(process.env.PRICE_EIP_USD_PER_MONTH) : 3.6;
+  const fallbackPrice = process.env.PRICE_EIP_USD_PER_MONTH
+    ? parseFloat(process.env.PRICE_EIP_USD_PER_MONTH)
+    : DEFAULT_EIP_PRICE_USD_PER_MONTH;
 
   if (isNaN(fallbackPrice)) {
-    logger.warn('Invalid PRICE_EIP_USD_PER_MONTH environment variable, using default 3.6');
-    pricingCache.set(cacheKey, 3.6);
-    return 3.6;
+    logger.warn(
+      `Invalid PRICE_EIP_USD_PER_MONTH environment variable, using default ${DEFAULT_EIP_PRICE_USD_PER_MONTH}`,
+    );
+    pricingCache.set(cacheKey, DEFAULT_EIP_PRICE_USD_PER_MONTH);
+    return DEFAULT_EIP_PRICE_USD_PER_MONTH;
   }
 
   logger.info(`Using EIP price: $${fallbackPrice} per month`);
