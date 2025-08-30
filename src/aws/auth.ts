@@ -11,7 +11,7 @@ interface AssumedCredentialsConfig {
   durationSeconds: number;
 }
 
-// Caché thread-safe usando WeakMap para evitar memory leaks
+// Thread-safe cache using WeakMap to avoid memory leaks
 const credentialCache = new WeakMap<object, AwsCredentialIdentityProvider>();
 const cacheKey = {};
 
