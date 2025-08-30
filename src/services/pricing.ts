@@ -91,7 +91,9 @@ export async function priceEbsGp3USDPerGBMonth(): Promise<number> {
     try {
       priceData = JSON.parse(response.PriceList[0]);
     } catch (parseError) {
-      throw new Error('Failed to parse pricing data JSON: ' + parseError.message);
+      throw new Error(
+        'Failed to parse pricing data JSON: ' + (parseError instanceof Error ? parseError.message : 'Unknown error'),
+      );
     }
 
     // Navigate through the pricing structure to get the OnDemand price
