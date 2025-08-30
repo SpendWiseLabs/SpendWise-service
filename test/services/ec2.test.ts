@@ -303,7 +303,7 @@ suite('EC2 Service', () => {
           {
             Instances: [
               {
-                // Sin InstanceId - debería ser filtrado
+                // Without InstanceId - should be filtered
                 InstanceType: 't2.micro',
                 State: { Name: 'running' },
               },
