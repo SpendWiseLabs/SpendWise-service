@@ -17,6 +17,8 @@
     "test:ec2": "node --loader ts-node/esm test-ec2.ts",
     "test:ec2:detailed": "cross-env NODE_ENV=development tsx test-ec2-detailed.ts",
     "test:ec2:cache": "cross-env NODE_ENV=development tsx test-ec2-cache.ts",
+    "demo": "bash scripts/demo.sh",
+    "cleanup": "bash scripts/cleanup.sh",
     "prettier": "npx prettier --write src test"
   },
   "repository": {
