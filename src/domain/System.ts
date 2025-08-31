@@ -22,4 +22,24 @@ export class System {
     this.getCostsUseCase = new GetCostsUseCase(aDataSource);
     this.getDashboardUseCase = new GetDashboardUseCase(aDataSource, aDataSource, aDataSource, aDataSource);
   }
+
+  async getInventory() {
+    return this.getInventoryUseCase.execute();
+  }
+
+  async getIssues() {
+    return this.getIssuesUseCase.execute();
+  }
+
+  async getSavings() {
+    return this.getSavingsUseCase.execute();
+  }
+
+  async getCosts() {
+    return this.getCostsUseCase.execute();
+  }
+
+  async getDashboard() {
+    return this.getDashboardUseCase.execute();
+  }
 }

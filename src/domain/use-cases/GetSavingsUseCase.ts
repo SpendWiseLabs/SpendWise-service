@@ -5,10 +5,6 @@ export class GetSavingsUseCase {
   constructor(private savingsRepository: SavingsRepository) {}
 
   async execute(): Promise<SavingsEstimate> {
-    try {
-      return await this.savingsRepository.getSavingsEstimate();
-    } catch (error) {
-      throw new Error(`Error retrieving savings estimate: ${error instanceof Error ? error.message : 'Unknown error'}`);
-    }
+    return this.savingsRepository.getSavingsEstimate();
   }
 }

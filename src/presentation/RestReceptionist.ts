@@ -1,42 +1,55 @@
-import { Request, Response } from 'express';
 import { System } from '../domain/System.js';
-import { whoAmI } from '../aws/whoami.js';
+import { Request, Response } from 'express';
 
 export class RestReceptionist {
-  private system: System;
+  constructor(private system: System) {}
 
-  constructor(aSystem: System) {
-    this.system = aSystem;
+  async health(req: Request, res: Response): Promise<void> {
+    res.json({ status: 'ok', timestamp: new Date().toISOString() });
   }
 
-  public health(request: Request, response: Response) {
-    response.sendStatus(200);
-  }
-
-  /**
-   * Endpoint para probar la conexión con AWS
-   */
-  public async testAwsConnection(request: Request, response: Response) {
+  async getInventory(req: Request, res: Response): Promise<void> {
     try {
-      const identity = await whoAmI();
-
-      response.json({
-        success: true,
-        message: 'AWS connection successful',
-        data: {
-          account: identity.account,
-          arn: identity.arn,
-          region: process.env.AWS_REGION || 'us-east-1',
-          timestamp: new Date().toISOString(),
-        },
-      });
+      const inventory = await this.system.getInventory();
+      res.json(inventory);
     } catch (error) {
-      response.status(500).json({
-        success: false,
-        message: 'AWS connection failed',
-        error: error instanceof Error ? error.message : 'Unknown error',
-        timestamp: new Date().toISOString(),
-      });
+      res.status(500).json({ error: (error as Error).message });
+    }
+  }
+
+  async getIssues(req: Request, res: Response): Promise<void> {
+    try {
+      const issues = await this.system.getIssues();
+      res.json(issues);
+    } catch (error) {
+      res.status(500).json({ error: (error as Error).message });
+    }
+  }
+
+  async getSavings(req: Request, res: Response): Promise<void> {
+    try {
+      const savings = await this.system.getSavings();
+      res.json(savings);
+    } catch (error) {
+      res.status(500).json({ error: (error as Error).message });
+    }
+  }
+
+  async getCosts(req: Request, res: Response): Promise<void> {
+    try {
+      const costs = await this.system.getCosts();
+      res.json(costs);
+    } catch (error) {
+      res.status(500).json({ error: (error as Error).message });
+    }
+  }
+
+  async getDashboard(req: Request, res: Response): Promise<void> {
+    try {
+      const dashboard = await this.system.getDashboard();
+      res.json(dashboard);
+    } catch (error) {
+      res.status(500).json({ error: (error as Error).message });
     }
   }
 }

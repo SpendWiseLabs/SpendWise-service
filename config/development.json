@@ -1,6 +1,6 @@
 {
   "environment": "development",
-  "port": 3000,
+  "port": 8080,
   "aws": {
     "region": "us-east-1",
     "roleArn": "arn:aws:iam::128977215059:role/HackathonReadOnlyRole",
