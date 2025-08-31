@@ -5,7 +5,7 @@ import { System } from './domain/System.js';
 import { DataSource } from './data-source/DataSource.js';
 
 const app: Express = express();
-const port = config.get('port') || 3000;
+const port = config.get('port') || 8080;
 
 const aDataSource = new DataSource();
 const aSystem = new System(aDataSource);
@@ -17,9 +17,17 @@ app.get('/', (req: Request, res: Response) => {
 
 app.get('/health', aRestReceptionist.health.bind(aRestReceptionist));
 
+app.get('/api/inventory', aRestReceptionist.getInventory.bind(aRestReceptionist));
+app.get('/api/issues', aRestReceptionist.getIssues.bind(aRestReceptionist));
+app.get('/api/savings', aRestReceptionist.getSavings.bind(aRestReceptionist));
+app.get('/api/costs', aRestReceptionist.getCosts.bind(aRestReceptionist));
+app.get('/api/dashboard', aRestReceptionist.getDashboard.bind(aRestReceptionist));
+
 app.listen(port, () => {
   console.log(`
   [server]: Server is running at http://localhost:${port}
   [env]: ${config.get('environment')}
   `);
 });
+
+export { app };
