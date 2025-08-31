@@ -52,4 +52,13 @@ export class RestReceptionist {
       res.status(500).json({ error: (error as Error).message });
     }
   }
+
+  async getFixPlan(req: Request, res: Response): Promise<void> {
+    try {
+      const plan = await this.system.getFixPlan();
+      res.json(plan);
+    } catch (error) {
+      res.status(500).json({ error: (error as Error).message });
+    }
+  }
 }
