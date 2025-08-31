@@ -49,69 +49,72 @@ const pricingCache = new PricingCache();
  */
 export async function priceEbsGp3USDPerGBMonth(): Promise<number> {
   const cacheKey = 'ebs-gp3-usd-per-gb-month';
+  const cached = pricingCache.get(cacheKey);
+  if (cached !== null) return cached;
 
-  // Check cache
-  const cachedPrice = pricingCache.get(cacheKey);
-  if (cachedPrice !== null) return cachedPrice;
+  const credentials = getAssumedCredentials();
+  const client = new PricingClient({ region: 'us-east-1', credentials });
+  const LOCATION = 'US East (N. Virginia)';
+
+  async function tryQuery(filters: { Type: 'TERM_MATCH'; Field: string; Value: string }[]) {
+    const res = await client.send(
+      new GetProductsCommand({
+        ServiceCode: 'AmazonEC2',
+        Filters: filters,
+        MaxResults: 5, // 👈 probá más de 1
+      }),
+    );
+    const items = res.PriceList ?? [];
+    for (const item of items) {
+      const doc = typeof item === 'string' ? JSON.parse(item) : item;
+      const terms = doc.terms?.OnDemand;
+      if (!terms) continue;
+      const odKey = Object.keys(terms)[0];
+      if (!odKey) continue;
+      const dims = terms[odKey].priceDimensions;
+      if (!dims) continue;
+      // 👇 elegimos explícitamente la dimensión de almacenamiento
+      const dimKey = Object.keys(dims).find((k) => dims[k]?.unit === 'GB-Mo');
+      if (!dimKey) continue;
+      const usd = dims[dimKey].pricePerUnit?.USD;
+      const price = usd ? Number(usd) : NaN;
+      if (isFinite(price)) return price;
+    }
+    throw new Error('no GB-Mo OnDemand price found');
+  }
 
   try {
-    const credentials = getAssumedCredentials();
-    const pricingClient = new PricingClient({
-      region: 'us-east-1', // Commercial Pricing API region
-      credentials,
-    });
-
-    // Correct filters for GP3 per GB-Month (not IOPS)
-    const command = new GetProductsCommand({
-      ServiceCode: 'AmazonEC2',
-      Filters: [
-        { Type: 'TERM_MATCH', Field: 'location', Value: 'US East (N. Virginia)' },
-        { Type: 'TERM_MATCH', Field: 'usagetype', Value: 'EBS:VolumeUsage.gp3' }, // key
-        { Type: 'TERM_MATCH', Field: 'productFamily', Value: 'Storage' }, // avoids IOPS/Throughput
-      ],
-      MaxResults: 1,
-    });
-
-    const response = await pricingClient.send(command);
-    if (!response.PriceList?.[0]) throw new Error('No pricing data found for EBS gp3');
-
-    const priceDoc =
-      typeof response.PriceList[0] === 'string' ? JSON.parse(response.PriceList[0] as string) : response.PriceList[0];
-
-    const terms = priceDoc.terms?.OnDemand;
-    if (!terms) throw new Error('No OnDemand terms found in pricing data');
-
-    const odKey = Object.keys(terms)[0];
-    if (!odKey) throw new Error('No OnDemand term key');
-
-    const dims = terms[odKey].priceDimensions;
-    if (!dims) throw new Error('No priceDimensions in OnDemand term');
-
-    // ✅ Select the dimension whose unit is GB-Mo
-    const dimKey = Object.keys(dims).find((k) => dims[k]?.unit === 'GB-Mo');
-    if (!dimKey) throw new Error('No GB-Mo price dimension found');
-
-    const usd = dims[dimKey].pricePerUnit?.USD;
-    const price = usd ? parseFloat(usd) : NaN;
-    if (!isFinite(price)) throw new Error('Invalid USD price value');
-
-    logger.info(`Retrieved EBS gp3 GB-Mo price from AWS Pricing API: $${price} per GB-month`);
-    pricingCache.set(cacheKey, price);
-    return price;
-  } catch (error) {
-    const fallbackPrice = process.env.PRICE_EBS_GP3_USD_PER_GB
-      ? parseFloat(process.env.PRICE_EBS_GP3_USD_PER_GB)
-      : DEFAULT_EBS_GP3_PRICE_USD_PER_GB_MONTH;
-
-    const safe = isFinite(fallbackPrice) ? fallbackPrice : DEFAULT_EBS_GP3_PRICE_USD_PER_GB_MONTH;
-    if (!isFinite(fallbackPrice)) {
-      logger.warn(`Invalid PRICE_EBS_GP3_USD_PER_GB env; using default ${DEFAULT_EBS_GP3_PRICE_USD_PER_GB_MONTH}`);
+    // Intento A — usagetype GP3
+    try {
+      const p = await tryQuery([
+        { Type: 'TERM_MATCH', Field: 'location', Value: LOCATION },
+        { Type: 'TERM_MATCH', Field: 'usagetype', Value: 'EBS:VolumeUsage.gp3' },
+        { Type: 'TERM_MATCH', Field: 'productFamily', Value: 'Storage' },
+      ]);
+      logger.info(`Retrieved EBS gp3 GB-Mo price (A): $${p}`);
+      pricingCache.set(cacheKey, p);
+      return p;
+    } catch {
+      /* cae al B */
     }
-    logger.info(
-      `Using fallback EBS GP3 price: $${safe} per GB-month (AWS Pricing API failed: ${(error as Error).message})`,
-    );
-    pricingCache.set(cacheKey, safe);
-    return safe;
+
+    // Intento B — volumeApiName GP3 (puede traer IOPS/Throughput; filtramos por unit)
+    const p2 = await tryQuery([
+      { Type: 'TERM_MATCH', Field: 'location', Value: LOCATION },
+      { Type: 'TERM_MATCH', Field: 'volumeApiName', Value: 'gp3' },
+      { Type: 'TERM_MATCH', Field: 'productFamily', Value: 'Storage' },
+    ]);
+    logger.info(`Retrieved EBS gp3 GB-Mo price (B): $${p2}`);
+    pricingCache.set(cacheKey, p2);
+    return p2;
+  } catch (error) {
+    // Fallback
+    const fallback = process.env.PRICE_EBS_GP3_USD_PER_GB
+      ? Number(process.env.PRICE_EBS_GP3_USD_PER_GB)
+      : DEFAULT_EBS_GP3_PRICE_USD_PER_GB_MONTH;
+    logger.info(`Using fallback EBS gp3 price: $${fallback} (reason: ${(error as Error).message})`);
+    pricingCache.set(cacheKey, fallback);
+    return fallback;
   }
 }
 
