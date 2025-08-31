@@ -30,4 +30,12 @@ app.listen(port, () => {
   `);
 });
 
+app.get('/debug/env', (_req, res) => {
+  res.json({
+    AWS_REGION: process.env.AWS_REGION,
+    ROLE_ARN: (process.env.ROLE_ARN || '').slice(0, 25) + '...',
+    EXTERNAL_ID: process.env.EXTERNAL_ID,
+  });
+});
+
 export { app };

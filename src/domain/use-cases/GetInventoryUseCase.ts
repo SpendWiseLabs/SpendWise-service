@@ -1,20 +1,11 @@
-import { InventoryRepository } from '../repositories/InventoryRepository.js';
-import { Ec2Instance, EbsVolume, RdsInstance, S3Bucket, ElasticIp } from '../entities/AwsResource.js';
+import { DataSource } from '../../data-source/DataSource.js';
+import { listInstances, listVolumes, listAddresses } from '../../services/ec2.js';
 
 export class GetInventoryUseCase {
-  constructor(private inventoryRepository: InventoryRepository) {}
+  constructor(private dataSource: DataSource) {}
 
-  async execute(): Promise<{
-    ec2: Ec2Instance[];
-    ebs: EbsVolume[];
-    rds: RdsInstance[];
-    s3: S3Bucket[];
-    eip: ElasticIp[];
-  }> {
-    try {
-      return await this.inventoryRepository.getAllResources();
-    } catch (error) {
-      throw new Error(`Error retrieving inventory: ${error instanceof Error ? error.message : 'Unknown error'}`);
-    }
+  async execute() {
+    const [ec2, ebs, eip] = await Promise.all([listInstances(), listVolumes(), listAddresses()]);
+    return { ec2, ebs, rds: [], s3: [], eip };
   }
 }
