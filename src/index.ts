@@ -22,6 +22,7 @@ app.get('/api/issues', aRestReceptionist.getIssues.bind(aRestReceptionist));
 app.get('/api/savings', aRestReceptionist.getSavings.bind(aRestReceptionist));
 app.get('/api/costs', aRestReceptionist.getCosts.bind(aRestReceptionist));
 app.get('/api/dashboard', aRestReceptionist.getDashboard.bind(aRestReceptionist));
+app.get('/api/fixplan', aRestReceptionist.getFixPlan.bind(aRestReceptionist));
 
 app.listen(port, () => {
   console.log(`

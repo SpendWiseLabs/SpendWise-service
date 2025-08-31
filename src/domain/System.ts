@@ -4,6 +4,7 @@ import { GetIssuesUseCase } from './use-cases/GetIssuesUseCase.js';
 import { GetSavingsUseCase } from './use-cases/GetSavingsUseCase.js';
 import { GetCostsUseCase } from './use-cases/GetCostsUseCase.js';
 import { GetDashboardUseCase } from './use-cases/GetDashboardUseCase.js';
+import { GetFixPlanUseCase } from './use-cases/GetFixPlanUseCase.js';
 
 export class System {
   private dataSource: DataSource;
@@ -12,6 +13,7 @@ export class System {
   private getSavingsUseCase: GetSavingsUseCase;
   private getCostsUseCase: GetCostsUseCase;
   private getDashboardUseCase: GetDashboardUseCase;
+  private getFixPlanUseCase: GetFixPlanUseCase;
 
   constructor(aDataSource: DataSource) {
     this.dataSource = aDataSource;
@@ -21,6 +23,7 @@ export class System {
     this.getSavingsUseCase = new GetSavingsUseCase(aDataSource);
     this.getCostsUseCase = new GetCostsUseCase(aDataSource);
     this.getDashboardUseCase = new GetDashboardUseCase(aDataSource, aDataSource, aDataSource, aDataSource);
+    this.getFixPlanUseCase = new GetFixPlanUseCase(aDataSource);
   }
 
   async getInventory() {
@@ -41,5 +44,9 @@ export class System {
 
   async getDashboard() {
     return this.getDashboardUseCase.execute();
+  }
+
+  async getFixPlan() {
+    return this.getFixPlanUseCase.execute();
   }
 }
