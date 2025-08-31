@@ -26,12 +26,12 @@ export class RestReceptionist {
     }
   }
 
-  async getSavings(req: Request, res: Response): Promise<void> {
+  async getSavings(req: Request, res: Response) {
     try {
       const savings = await this.system.getSavings();
       res.json(savings);
-    } catch (error) {
-      res.status(500).json({ error: (error as Error).message });
+    } catch (e) {
+      res.status(500).json({ error: (e as Error).message });
     }
   }
 
